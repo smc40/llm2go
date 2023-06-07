@@ -1,4 +1,7 @@
+from pathlib import Path
+
 from transformers import T5Tokenizer, T5ForConditionalGeneration
+import pandas as pd
 
 
 class LLM:
@@ -17,9 +20,23 @@ class LLM:
         return self._tokenizer.decode(outputs[0], skip_special_tokens=True)
 
 
-if __name__ == '__main__':
-    model = "google/flan-t5-small"
+def compute_performance(model: str, filename: str) -> float:
+    with open(Path.cwd().parent / filename) as tfile:
+        df = pd.read_csv(tfile)
+
     llm = LLM(model=model)
 
-    response = llm.apply("Ibuprofen is well known to cause diarrhea.")
-    print(response)
+    comp = []
+    for _, (sent, drug) in df.iterrows():
+        pred = llm.apply(text=sent)
+        if pred.lower() != drug.lower():
+            print(pred, drug, sent)
+
+
+if __name__ == '__main__':
+    model = "google/flan-t5-small"
+    # llm = LLM(model=model)
+    #
+    # response = llm.apply("Ibuprofen is well known to cause diarrhea.")
+    # print(response)
+    compute_performance(model=model, filename='100sentences.csv')

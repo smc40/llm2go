@@ -5,7 +5,7 @@ class LLM:
 
     def __init__(self, model: str):
         self._tokenizer = T5Tokenizer.from_pretrained(model)
-        self._model = T5ForConditionalGeneration.from_pretrained("google/flan-t5-small")
+        self._model = T5ForConditionalGeneration.from_pretrained(model)
 
         self._prompt_template = "In the following sentence, what is the drug name: {text}"
 

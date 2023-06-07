@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
-from base import TextTransfer, IntTransfer
+from base import TextTransfer, LLMQuestion
+from llm.base import LLM
 
 app = FastAPI()
 
@@ -9,8 +10,10 @@ app = FastAPI()
 async def helloworld():
     return {"text": "hello world"}
 
-@app.post("/detect", response_model=TextTransfer)
-async def printnumber(sentence: TextTransfer):
-    original_number = inputdata.number
-    new_number = original_number*2
-    return {"text": f'original number: {original_number} / new number: {new_number}'}
+
+@app.post("/drugname", response_model=TextTransfer)
+async def drugname(llm_question: LLMQuestion):
+    model = llm_question.model
+    llm = LLM(model=model)
+    answer = llm.apply(text=llm_question.text)
+    return {"text": answer}

@@ -5,5 +5,6 @@ class TextTransfer(BaseModel):
     text: str
 
 
-class IntTransfer(BaseModel):
-    number: int
+class LLMQuestion(BaseModel):
+    model: str
+    text: str

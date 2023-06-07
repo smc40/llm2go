@@ -1,10 +1,13 @@
 from pydantic import BaseModel
 
 
-class TextTransfer(BaseModel):
+class Text(BaseModel):
     text: str
+
+class Performance(BaseModel):
+    performance: float
 
 
 class LLMQuestion(BaseModel):
-    model: str
+    model_name: str
     text: str

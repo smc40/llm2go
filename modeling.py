@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from transformers import T5Tokenizer, T5ForConditionalGeneration, AutoModelForCausalLM, AutoTokenizer
+from transformers import T5Tokenizer, T5ForConditionalGeneration, AutoTokenizer, AutoModelForCausalLM
 import pandas as pd
 
 
-class LLMTextGenerator:
+class LLMTextGenerator(ABC):
     """Based on an input prompt the defined model generates a chunk of text
 
     Arguments:
@@ -18,11 +18,11 @@ class LLMTextGenerator:
         self._summarize_prompt = 'Summarize the following text in {number_of_words} words: {text}'
 
     @abstractmethod
-    def extract_drug_names(self, text: str):
+    def extract_drug_names(self, text: str) -> str:
         pass
 
     @abstractmethod
-    def summarize(self, text: str, number_of_words: int):
+    def summarize(self, text: str, number_of_words: int) -> str:
         pass
 
 
@@ -51,16 +51,37 @@ class FlanT5Small(LLMTextGenerator):
         return self.tokenizer.decode(outputs[0], skip_special_tokens=True)
 
 
-class LLMTextGeneratorFactory:
 
+class CerebrasGPT(LLMTextGenerator):
+
+    def __init__(self, model_name: str):
+        super().__init__(model_name=model_name)
+
+        self._tokenizer = AutoTokenizer.from_pretrained(self._model_name)
+        self._model = AutoModelForCausalLM.from_pretrained(self._model_name)
+
+    def extract_drug_names(self, text: str):
+        prompt = self._extract_drug_names_prompt.format(text=text)
+        inputs = self._tokenizer(prompt, return_tensors="pt")
+        outputs = self._model.generate(**inputs, num_beams=5,
+                                       max_new_tokens=50, early_stopping=True,
+                                       no_repeat_ngram_size=2)
+        text_output = self._tokenizer.batch_decode(outputs, skip_special_tokens=True)
+        return text_output[0]
+
+    def summarize(self, text: str, number_of_words: int) -> str:
+        pass
+
+
+class LLMTextGeneratorFactory:
     @staticmethod
     def get(model_name: str) -> LLMTextGenerator:
         match model_name:
             case 'google/flan-t5-small':
                 return FlanT5Small(model_name=model_name)
-            # case 'cerebras/Cerebras-GPT-2.7B':
-            #     pass
-            #
+            case 'cerebras/Cerebras-GPT-2.7B':
+                return CerebrasGPT(model_name=model_name)
+
             # case 'bigscience/bloom-1b7':
             #     pass
 
@@ -82,7 +103,7 @@ def compute_performance(model_name: str, filename: str) -> float:
 
 
 if __name__ == '__main__':
-    model_name = "google/flan-t5-small"
-    # model_name = "bigscience/bloom-1b7"
+    # model_name = "google/flan-t5-small"
+    model_name = "cerebras/Cerebras-GPT-2.7B"
     accuracy = compute_performance(model_name=model_name, filename='100sentences.csv')
     print(f'Model {model_name} had accuracy {accuracy*100:.1f}%')

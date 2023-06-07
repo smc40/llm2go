@@ -11,7 +11,7 @@
 ## Use Huggingface Models
 Install transformers
 ```
-pip install transformers, torch, SentencePiese, accelerate
+pip install transformers, torch, SentencePiece, accelerate
 ```
 download and use a model
 ```python

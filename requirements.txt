@@ -1,4 +1,7 @@
+fastapi
+uvicorn[standard]
 transformers
 torch
 SentencePiece
 accelerate
+pandas

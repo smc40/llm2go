@@ -1,4 +1,5 @@
-# llm2go
+![Alt text](logo.png)
+
 **Goal:** API Service for interchangeable, locally hosted LLMs
 
 **User Story:** As a *Data Scientist* I would like to *quickly use and test newly released LLMs* so *I can compare thir performances*.

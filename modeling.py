@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
+from tqdm import tqdm
 
 from transformers import T5Tokenizer, T5ForConditionalGeneration, AutoTokenizer, AutoModelForCausalLM
 import pandas as pd
@@ -95,7 +96,7 @@ def compute_performance(model_name: str, filename: str) -> float:
 
     llm = LLMTextGeneratorFactory().get(model_name=model_name)
     comp = []
-    for _, (sent, drug) in df.iterrows():
+    for _, (sent, drug) in tqdm(df.iterrows()):
         pred = llm.extract_drug_names(text=sent)
         comp.append(pred.lower() == drug.lower())
 
